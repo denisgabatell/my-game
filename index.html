@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Love Clicker 💖</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        :root {
+            --primary: #ff6b8b;
+            --secondary: #ff8e9e;
+            --accent: #ffccd5;
+            --gold: #ffd700;
+            --purple: #c77dff;
+            --blue: #48cae4;
+            --pink: #ff9ff3;
+            --green: #00ff9d;
+            --dark: #1a1b2e;
+            --light: #fff5f7;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--dark) 0%, #2a2d43 100%);
+            min-height: 100vh;
+            color: var(--light);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            touch-action: manipulation;
+            position: relative;
+        }
+        
+        /* Анимированный фон */
+        #bgCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px 15px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* Анимированная надпись "Дианка, улыбайся" */
+        .smile-text {
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 15px;
+            position: relative;
+        }
+        
+        .animated-text {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, 
+                var(--pink), 
+                var(--primary), 
+                var(--purple), 
+                var(--blue),
+                var(--green)
+            );
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: gradientFlow 5s ease infinite;
+            text-shadow: 0 0 20px rgba(255, 107, 139, 0.3);
+            padding: 10px 20px;
+            border-radius: 15px;
+            display: inline-block;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        @keyframes gradientFlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        /* Поцелуйчики */
+        .kiss {
+            position: fixed;
+            font-size: 40px;
+            z-index: 1000;
+            pointer-events: auto;
+            animation: kissFloat 6s ease-in-out forwards;
+            cursor: pointer;
+            transition: transform 0.2s;
+            filter: drop-shadow(0 0 15px rgba(255, 20, 147, 0.8));
+            user-select: none;
+        }
+        
+        .kiss:hover, .kiss:active {
+            transform: scale(1.3);
+        }
+        
+        .kiss.caught {
+            animation: kissCaught 0.8s ease-out forwards;
+            pointer-events: none;
+        }
+        
+        @keyframes kissFloat {
+            0% {
+                transform: translateY(100vh) rotate(0deg) scale(0.5);
+                opacity: 0;
+            }
+            15% {
+                opacity: 1;
+                transform: translateY(85vh) rotate(180deg) scale(1);
+            }
+            85% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(720deg) scale(0.5);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes kissCaught {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+                filter: drop-shadow(0 0 20px rgba(255, 20, 147, 1));
+            }
+            100% {
+                transform: scale(3) translateY(-50px);
+                opacity: 0;
+                filter: drop-shadow(0 0 50px rgba(255, 20, 147, 1));
+            }
+        }
+        
+        /* Основное сердечко */
+        .heart-section {
+            position: relative;
+            margin: 30px 0;
+        }
+        
+        .pulse-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 220px;
+            height: 220px;
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+            opacity: 0.3;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: translate(-50%, -50%) scale(0.8);
+                opacity: 0.3;
+            }
+            50% {
+                opacity: 0.1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1.2);
+                opacity: 0;
+            }
+        }
+        
+        .heart-btn {
+            width: 180px;
+            height: 180px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            cursor: pointer;
+            user-select: none;
+            border: none;
+            box-shadow: 
+                0 15px 35px rgba(255, 107, 139, 0.4),
+                inset 0 8px 20px rgba(255, 255, 255, 0.2),
+                0 0 0 8px rgba(255, 255, 255, 0.1);
+            transition: all 0.2s;
+            position: relative;
+            z-index: 2;
+            transform-style: preserve-3d;
+        }
+        
+        .heart-btn:active {
+            transform: scale(0.92);
+            box-shadow: 
+                0 5px 15px rgba(255, 107, 139, 0.6),
+                inset 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Статистика */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            padding: 20px 15px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.12);
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--purple));
+        }
+        
+        .stat-icon {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--gold);
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--accent);
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+        
+        /* Магазин улучшений */
+        .shop-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 25px 20px;
+            margin-top: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .shop-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .shop-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--blue), var(--purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .upgrade-item {
+            background: rgba(255, 255, 255, 0.07);
+            border-radius: 15px;
+            padding: 18px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .upgrade-item:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateX(5px);
+            border-color: rgba(255, 107, 139, 0.3);
+        }
+        
+        .upgrade-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .upgrade-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .upgrade-cost {
+            background: rgba(255, 215, 0, 0.1);
+            color: var(--gold);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+        
+        .upgrade-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: var(--accent);
+        }
+        
+        .upgrade-effect {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .upgrade-count {
+            color: var(--blue);
+            font-weight: 600;
+        }
+        
+        .buy-btn {
+            background: linear-gradient(45deg, var(--primary), var(--purple));
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 15px;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.5px;
+        }
+        
+        .buy-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 107, 139, 0.3);
+        }
+        
+        .buy-btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        
+        .buy-btn.enabled {
+            background: linear-gradient(45deg, var(--primary), var(--purple));
+            animation: pulseBtn 1.5s infinite;
+        }
+        
+        .buy-btn.disabled {
+            background: linear-gradient(45deg, #666, #888);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.6;
+        }
+        
+        @keyframes pulseBtn {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 139, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(255, 107, 139, 0); }
+        }
+        
+        /* Уведомления */
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: linear-gradient(45deg, var(--primary), var(--purple));
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            text-align: center;
+            max-width: 90%;
+            box-shadow: 0 10px 30px rgba(255, 107, 139, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .notification.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        /* Бонус за 5 монет */
+        .bonus-5-coins {
+            position: fixed;
+            font-size: 25px;
+            z-index: 999;
+            pointer-events: none;
+            animation: bonusFloat 4s ease-out forwards;
+            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
+        }
+        
+        @keyframes bonusFloat {
+            0% {
+                transform: translateY(100vh) scale(0.5);
+                opacity: 0;
+            }
+            20% {
+                opacity: 1;
+                transform: translateY(80vh) scale(1);
+            }
+            80% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-50px) scale(0.5);
+                opacity: 0;
+            }
+        }
+        
+        /* Кнопки сохранения */
+        .save-button {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--primary), var(--purple));
+            border: 2px solid rgba(255,255,255,0.2);
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 999;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .save-button:hover {
+            transform: scale(1.1);
+        }
+        
+        .save-button:active {
+            transform: scale(0.9);
+        }
+        
+        .export-button {
+            position: fixed;
+            bottom: 20px;
+            left: 80px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(72, 202, 228, 0.8);
+            border: 2px solid rgba(255,255,255,0.2);
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 999;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .import-button {
+            position: fixed;
+            bottom: 20px;
+            left: 140px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(199, 125, 255, 0.8);
+            border: 2px solid rgba(255,255,255,0.2);
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 999;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Иконка сохранения */
+        .save-icon {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 24px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s;
+            z-index: 10000;
+            pointer-events: none;
+        }
+        
+        /* Панель сохранения */
+        .save-panel {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(26, 27, 46, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 10px;
+            z-index: 1000;
+            font-size: 12px;
+            color: #ffccd5;
+            backdrop-filter: blur(10px);
+            display: none;
+        }
+        
+        /* Стили скроллбара */
+        .shop-section::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .shop-section::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+        
+        .shop-section::-webkit-scrollbar-thumb {
+            background: linear-gradient(var(--primary), var(--purple));
+            border-radius: 4px;
+        }
+        
+        @media (max-width: 480px) {
+            .heart-btn {
+                width: 150px;
+                height: 150px;
+                font-size: 60px;
+            }
+            
+            .pulse-ring {
+                width: 180px;
+                height: 180px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .animated-text {
+                font-size: 1.4rem;
+            }
+            
+            .kiss {
+                font-size: 35px;
+            }
+            
+            .save-button, .export-button, .import-button {
+                width: 45px;
+                height: 45px;
+                font-size: 20px;
+            }
+            
+            .save-button {
+                left: 10px;
+            }
+            
+            .export-button {
+                left: 65px;
+            }
+            
+            .import-button {
+                left: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Canvas для анимаций фона -->
+    <canvas id="bgCanvas"></canvas>
+    
+    <!-- Уведомление -->
+    <div class="notification" id="notification"></div>
+    
+    <!-- Панель сохранения -->
+    <div class="save-panel" id="savePanel"></div>
+    
+    <!-- Иконка сохранения -->
+    <div class="save-icon" id="saveIcon">💾</div>
+    
+    <!-- Скрытый input для импорта -->
+    <input type="file" id="fileInput" accept=".json" style="display: none;">
+    
+    <div class="container">
+        <!-- Анимированная надпись -->
+        <div class="smile-text">
+            <div class="animated-text">💖 Дианка, улыбайся! 💖</div>
+        </div>
+        
+        <!-- Основное сердечко -->
+        <div class="heart-section">
+            <div class="pulse-ring"></div>
+            <div class="pulse-ring" style="animation-delay: 0.5s;"></div>
+            <div class="pulse-ring" style="animation-delay: 1s;"></div>
+            
+            <button class="heart-btn" id="heartBtn">
+                💖
+            </button>
+        </div>
+        
+        <!-- Статистика -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-icon">🪙</span>
+                <span class="stat-value" id="coins">0</span>
+                <div class="stat-label">Монеты</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">💖</span>
+                <span class="stat-value" id="hearts">0</span>
+                <div class="stat-label">Сердечки</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">⚡</span>
+                <span class="stat-value" id="heartsPerSecond">0</span>
+                <div class="stat-label">В секунду</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">💪</span>
+                <span class="stat-value" id="clickPower">1</span>
+                <div class="stat-label">Сила клика</div>
+            </div>
+        </div>
+        
+        <!-- Магазин улучшений -->
+        <div class="shop-section">
+            <div class="shop-header">
+                <div class="shop-title">🛒 Магазин улучшений</div>
+            </div>
+            
+            <div id="upgradesList">
+                <!-- Улучшения будут здесь -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Кнопки управления сохранениями -->
+    <button class="save-button" id="saveBtn" title="Сохранить игру">💾</button>
+    <button class="export-button" id="exportBtn" title="Экспорт сохранения">📤</button>
+    <button class="import-button" id="importBtn" title="Импорт сохранения">📥</button>
+
+    <script>
+        // ========== ИГРОВЫЕ ПЕРЕМЕННЫЕ ==========
+        let coins = 0;
+        let hearts = 0;
+        let clickPower = 1;
+        let heartsPerSecond = 0;
+        let lastUpdate = Date.now();
+        let totalCoinsEarned = 0; // Счетчик всех заработанных монет
+        let lastBonusCoins = 0;   // Последнее количество монет при котором давали бонус
+        let stars = [];
+        let activeKisses = []; // Массив активных поцелуйчиков
+        
+        // Элементы DOM
+        const heartBtn = document.getElementById('heartBtn');
+        const coinsEl = document.getElementById('coins');
+        const heartsEl = document.getElementById('hearts');
+        const heartsPerSecondEl = document.getElementById('heartsPerSecond');
+        const clickPowerEl = document.getElementById('clickPower');
+        const upgradesList = document.getElementById('upgradesList');
+        const notification = document.getElementById('notification');
+        const bgCanvas = document.getElementById('bgCanvas');
+        const ctx = bgCanvas.getContext('2d');
+        
+        // Элементы для сохранения
+        const saveBtn = document.getElementById('saveBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const importBtn = document.getElementById('importBtn');
+        const fileInput = document.getElementById('fileInput');
+        const saveIcon = document.getElementById('saveIcon');
+        const savePanel = document.getElementById('savePanel');
+        
+        // ========== МАГАЗИН УЛУЧШЕНИЙ ==========
+        const upgrades = [
+            {
+                id: 1,
+                name: "💖 Милое сердечко",
+                description: "Маленькая порция любви",
+                baseCost: 20,
+                cost: 20,
+                heartsPerSecond: 1,
+                count: 0
+            },
+            {
+                id: 2,
+                name: "💕 Парящее сердечко",
+                description: "Летает вокруг экрана",
+                baseCost: 75,
+                cost: 75,
+                heartsPerSecond: 3,
+                count: 0
+            },
+            {
+                id: 3,
+                name: "💘 Сердце Купидона",
+                description: "Стрела попадает прямо в цель",
+                baseCost: 250,
+                cost: 250,
+                heartsPerSecond: 10,
+                count: 0
+            },
+            {
+                id: 4,
+                name: "💝 Подарочное сердце",
+                description: "С красивым бантиком",
+                baseCost: 750,
+                cost: 750,
+                heartsPerSecond: 25,
+                count: 0
+            },
+            {
+                id: 5,
+                name: "🐵 Обезьянка любви",
+                description: "Забавный помощник влюбленных",
+                baseCost: 2000,
+                cost: 2000,
+                heartsPerSecond: 70,
+                count: 0
+            },
+            {
+                id: 6,
+                name: "👑 Золотое сердце",
+                description: "Королевский уровень любви",
+                baseCost: 5000,
+                cost: 5000,
+                heartsPerSecond: 200,
+                count: 0
+            }
+        ];
+        
+        // ========== СИСТЕМА СОХРАНЕНИЯ ==========
+        const SAVE_KEY = 'loveClicker_save_v2';
+        let autoSaveInterval;
+        
+        // Функция сохранения игры
+        function saveGame() {
+            try {
+                const saveData = {
+                    // Основные данные
+                    coins: coins,
+                    hearts: hearts,
+                    clickPower: clickPower,
+                    heartsPerSecond: heartsPerSecond,
+                    totalCoinsEarned: totalCoinsEarned,
+                    lastBonusCoins: lastBonusCoins,
+                    
+                    // Данные улучшений
+                    upgrades: upgrades.map(u => ({
+                        id: u.id,
+                        count: u.count,
+                        cost: u.cost
+                    })),
+                    
+                    // Метаданные
+                    saveTime: Date.now(),
+                    version: '2.0'
+                };
+                
+                // Сохраняем в localStorage
+                localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
+                
+                console.log('💾 Игра сохранена');
+                
+                // Показываем иконку сохранения
+                showSaveIcon();
+                
+                return true;
+                
+            } catch (error) {
+                console.error('Ошибка сохранения:', error);
+                return false;
+            }
+        }
+        
+        // Функция загрузки игры
+        function loadGame() {
+            try {
+                // Пробуем загрузить из localStorage
+                const savedData = localStorage.getItem(SAVE_KEY);
+                
+                if (!savedData) {
+                    console.log('💾 Сохранение не найдено, начинаем новую игру');
+                    return false;
+                }
+                
+                const save = JSON.parse(savedData);
+                
+                // Проверяем версию
+                if (save.version !== '2.0') {
+                    console.log('💾 Устаревшая версия сохранения, начинаем новую игру');
+                    return false;
+                }
+                
+                // Проверяем, не устарело ли сохранение (больше 30 дней)
+                const thirtyDays = 30 * 24 * 60 * 60 * 1000;
+                if (Date.now() - save.saveTime > thirtyDays) {
+                    console.log('💾 Сохранение устарело (30+ дней)');
+                    return false;
+                }
+                
+                // Загружаем основные данные
+                coins = save.coins || 0;
+                hearts = save.hearts || 0;
+                clickPower = save.clickPower || 1;
+                heartsPerSecond = save.heartsPerSecond || 0;
+                totalCoinsEarned = save.totalCoinsEarned || 0;
+                lastBonusCoins = save.lastBonusCoins || 0;
+                
+                // Загружаем улучшения
+                if (save.upgrades && Array.isArray(save.upgrades)) {
+                    save.upgrades.forEach(savedUpgrade => {
+                        const upgrade = upgrades.find(u => u.id === savedUpgrade.id);
+                        if (upgrade) {
+                            upgrade.count = savedUpgrade.count || 0;
+                            upgrade.cost = savedUpgrade.cost || upgrade.baseCost * Math.pow(1.5, upgrade.count);
+                        }
+                    });
+                }
+                
+                console.log('💾 Игра загружена успешно');
+                showNotification('💾 Прогресс загружен!');
+                return true;
+                
+            } catch (error) {
+                console.error('💾 Ошибка загрузки:', error);
+                return false;
+            }
+        }
+        
+        // Автосохранение
+        function startAutoSave() {
+            if (autoSaveInterval) clearInterval(autoSaveInterval);
+            autoSaveInterval = setInterval(saveGame, 30000); // 30 секунд
+        }
+        
+        // Иконка сохранения
+        function showSaveIcon() {
+            saveIcon.style.opacity = '1';
+            saveIcon.style.transform = 'translateY(0)';
+            
+            setTimeout(() => {
+                saveIcon.style.opacity = '0';
+                saveIcon.style.transform = 'translateY(10px)';
+            }, 2000);
+        }
+        
+        // Экспорт сохранения
+        function exportSave() {
+            const saveData = localStorage.getItem(SAVE_KEY);
+            if (saveData) {
+                const blob = new Blob([saveData], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `love-clicker-save-${new Date().toISOString().slice(0,10)}.json`;
+                a.click();
+                showNotification('📤 Сохранение экспортировано!');
+            } else {
+                showNotification('💾 Нет данных для экспорта');
+            }
+        }
+        
+        // Импорт сохранения
+        function importSave(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    // Простая проверка данных
+                    if (data && data.version && data.coins !== undefined) {
+                        if (confirm('Заменить текущее сохранение? Текущий прогресс будет потерян.')) {
+                            localStorage.setItem(SAVE_KEY, e.target.result);
+                            showNotification('📥 Сохранение импортировано! Перезагружаем...');
+                            setTimeout(() => location.reload(), 1500);
+                        }
+                    } else {
+                        showNotification('❌ Неверный формат файла');
+                    }
+                } catch (error) {
+                    showNotification('❌ Ошибка загрузки файла');
+                }
+            };
+            reader.readAsText(file);
+        }
+        
+        // Обновление панели сохранения
+        function updateSavePanel() {
+            const saveData = localStorage.getItem(SAVE_KEY);
+            if (saveData) {
+                const data = JSON.parse(saveData);
+                const saveTime = new Date(data.saveTime).toLocaleTimeString();
+                savePanel.innerHTML = `
+                    <div>💾 Сохранено: ${saveTime}</div>
+                    <div>🪙 Монет: ${data.coins || 0}</div>
+                    <div>💖/сек: ${data.heartsPerSecond || 0}</div>
+                `;
+            }
+        }
+        
+        // Настройка кнопок сохранения
+        function setupSaveButtons() {
+            // Сохранение
+            saveBtn.addEventListener('click', function() {
+                saveGame();
+                showNotification('💾 Игра сохранена!');
+                this.style.transform = 'scale(0.9)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 150);
+            });
+            
+            // Экспорт
+            exportBtn.addEventListener('click', exportSave);
+            
+            // Импорт
+            importBtn.addEventListener('click', () => fileInput.click());
+            
+            // Обработка выбора файла
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    importSave(file);
+                }
+                this.value = ''; // Сброс input
+            });
+            
+            // Долгое нажатие на сердечко показывает панель
+            heartBtn.addEventListener('touchstart', function(e) {
+                this.longPressTimer = setTimeout(() => {
+                    updateSavePanel();
+                    savePanel.style.display = 'block';
+                    setTimeout(() => {
+                        savePanel.style.display = 'none';
+                    }, 3000);
+                }, 1500);
+            });
+            
+            heartBtn.addEventListener('touchend', function() {
+                if (this.longPressTimer) {
+                    clearTimeout(this.longPressTimer);
+                }
+            });
+        }
+        
+        // ========== НАСТРОЙКА CANVAS ==========
+        function setupCanvas() {
+            bgCanvas.width = window.innerWidth;
+            bgCanvas.height = window.innerHeight;
+            
+            stars = [];
+            for (let i = 0; i < 80; i++) {
+                stars.push({
+                    x: Math.random() * bgCanvas.width,
+                    y: Math.random() * bgCanvas.height,
+                    size: Math.random() * 2 + 0.5,
+                    speed: Math.random() * 0.3 + 0.1,
+                    opacity: Math.random() * 0.5 + 0.3
+                });
+            }
+        }
+        
+        // ========== АНИМАЦИЯ ФОНА ==========
+        function animateBackground() {
+            ctx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+            
+            // Рисуем звезды
+            stars.forEach(star => {
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
+                ctx.fill();
+                
+                star.y += star.speed;
+                if (star.y > bgCanvas.height) {
+                    star.y = 0;
+                    star.x = Math.random() * bgCanvas.width;
+                }
+            });
+            
+            requestAnimationFrame(animateBackground);
+        }
+        
+        // ========== ИНИЦИАЛИЗАЦИЯ ИГРЫ ==========
+        function initGame() {
+            // Загружаем сохранение
+            loadGame();
+            
+            setupCanvas();
+            animateBackground();
+            updateDisplay();
+            renderUpgrades();
+            gameLoop();
+            
+            // Настраиваем сохранения
+            setupSaveButtons();
+            startAutoSave();
+            
+            // Сохраняем при закрытии
+            window.addEventListener('beforeunload', saveGame);
+            window.addEventListener('pagehide', saveGame);
+            
+            // Сохраняем при изменении видимости
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) {
+                    saveGame();
+                }
+            });
+            
+            showNotification("💖 Начни собирать любовь!");
+            
+            // Проверка магазина при старте
+            checkShopAvailability();
+        }
+        
+        // ========== ИГРОВОЙ ЦИКЛ ==========
+        function gameLoop() {
+            const now = Date.now();
+            const delta = now - lastUpdate;
+            
+            // Автоматический доход
+            if (heartsPerSecond > 0) {
+                hearts += (heartsPerSecond * delta) / 1000;
+                
+                // Конвертация сердечек в монеты
+                if (hearts >= 10) {
+                    const earnedCoins = Math.floor(hearts / 10);
+                    if (earnedCoins > 0) {
+                        addCoins(earnedCoins);
+                        hearts = hearts % 10;
+                        
+                        // Проверяем каждые 5 накликанных монет
+                        checkEvery5Coins();
+                    }
+                }
+            }
+            
+            lastUpdate = now;
+            updateDisplay();
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // ========== ДОБАВЛЕНИЕ МОНЕТ (ОБЩАЯ СУММА) ==========
+        function addCoins(amount) {
+            const oldCoins = coins;
+            coins += amount;
+            totalCoinsEarned += amount; // Увеличиваем счетчик всех заработанных монет
+            
+            console.log(`Добавлено ${amount} монет. Всего: ${coins}, Всего заработано: ${totalCoinsEarned}`);
+            
+            // Обновляем магазин при получении монет
+            updateShopButtons();
+        }
+        
+        // ========== ПРОВЕРКА КАЖДЫХ 5 НАКЛИКАННЫХ МОНЕТ ==========
+        function checkEvery5Coins() {
+            // Проверяем, достигли ли мы нового кратного 5 значения в totalCoinsEarned
+            if (totalCoinsEarned >= 5 && totalCoinsEarned >= lastBonusCoins + 5) {
+                // Добавляем бонусные 5 монет в общую сумму
+                addCoins(5);
+                lastBonusCoins = totalCoinsEarned;
+                
+                showNotification("💝 Моя ты умничка! +5 бонусных монет!");
+                
+                // Создаем эффект бонусных монет
+                createBonusEffect();
+                
+                // Создаем поцелуйчик за каждые 5 накликанных монет
+                spawnKiss();
+            }
+        }
+        
+        // ========== ЭФФЕКТ БОНУСНЫХ МОНЕТ ==========
+        function createBonusEffect() {
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const bonus = document.createElement('div');
+                    bonus.className = 'bonus-5-coins';
+                    bonus.textContent = '🪙';
+                    bonus.style.left = Math.random() * 80 + 10 + 'vw';
+                    bonus.style.fontSize = (20 + Math.random() * 15) + 'px';
+                    
+                    document.body.appendChild(bonus);
+                    
+                    setTimeout(() => {
+                        if (bonus.parentNode) {
+                            bonus.remove();
+                        }
+                    }, 4000);
+                }, i * 200);
+            }
+        }
+        
+        // ========== ПОЦЕЛУЙЧИКИ ==========
+        function spawnKiss() {
+            const kiss = document.createElement('div');
+            kiss.className = 'kiss';
+            kiss.textContent = '💋';
+            kiss.style.left = Math.random() * 70 + 15 + 'vw';
+            
+            // Добавляем обработчик клика
+            kiss.addEventListener('click', function(e) {
+                e.stopPropagation();
+                catchKiss(this);
+            });
+            
+            // Добавляем обработчик для тач-устройств
+            kiss.addEventListener('touchstart', function(e) {
+                e.stopPropagation();
+                catchKiss(this);
+                e.preventDefault();
+            }, { passive: false });
+            
+            document.body.appendChild(kiss);
+            activeKisses.push(kiss);
+            
+            // Автоудаление через 6 секунд
+            setTimeout(() => {
+                if (kiss.parentNode) {
+                    kiss.remove();
+                    activeKisses = activeKisses.filter(k => k !== kiss);
+                }
+            }, 6000);
+        }
+        
+        function catchKiss(kissElement) {
+            if (kissElement.classList.contains('caught')) return;
+            
+            kissElement.classList.add('caught');
+            addCoins(50); // +50 монет за поцелуйчик
+            showNotification("💋 Поймала поцелуйчик! +50 монет!");
+            
+            // Создаем эффект ловли поцелуйчика
+            createKissCatchEffect(kissElement);
+            
+            setTimeout(() => {
+                if (kissElement.parentNode) {
+                    kissElement.remove();
+                    activeKisses = activeKisses.filter(k => k !== kissElement);
+                }
+            }, 800);
+        }
+        
+        function createKissCatchEffect(kissElement) {
+            const rect = kissElement.getBoundingClientRect();
+            const x = rect.left + rect.width / 2;
+            const y = rect.top + rect.height / 2;
+            
+            // Создаем взрыв сердечек
+            for (let i = 0; i < 12; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.textContent = '❤️';
+                    heart.style.position = 'fixed';
+                    heart.style.left = x + 'px';
+                    heart.style.top = y + 'px';
+                    heart.style.fontSize = '20px';
+                    heart.style.zIndex = '999';
+                    heart.style.pointerEvents = 'none';
+                    
+                    const angle = (i * 30) * Math.PI / 180;
+                    const distance = 100;
+                    
+                    document.body.appendChild(heart);
+                    
+                    heart.animate([
+                        { 
+                            transform: 'translate(0, 0) scale(1)',
+                            opacity: 1 
+                        },
+                        { 
+                            transform: `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px) scale(0)`,
+                            opacity: 0 
+                        }
+                    ], {
+                        duration: 1000,
+                        easing: 'ease-out'
+                    });
+                    
+                    setTimeout(() => heart.remove(), 1000);
+                }, i * 50);
+            }
+        }
+        
+        // ========== КЛИК ПО СЕРДЕЧКУ ==========
+        heartBtn.addEventListener('click', (e) => {
+            hearts += clickPower;
+            
+            // Эффект клика
+            createClickEffect(e);
+            
+            // Конвертация в монеты
+            if (hearts >= 10) {
+                const earnedCoins = Math.floor(hearts / 10);
+                if (earnedCoins > 0) {
+                    addCoins(earnedCoins);
+                    hearts = hearts % 10;
+                    
+                    // Проверяем каждые 5 накликанных монет
+                    checkEvery5Coins();
+                }
+            }
+            
+            updateDisplay();
+        });
+        
+        // ========== ЭФФЕКТ КЛИКА ==========
+        function createClickEffect(event) {
+            const rect = heartBtn.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            
+            // Создаем частицу
+            const particle = document.createElement('div');
+            particle.style.position = 'absolute';
+            particle.style.left = x + 'px';
+            particle.style.top = y + 'px';
+            particle.style.width = '10px';
+            particle.style.height = '10px';
+            particle.style.background = 'radial-gradient(circle, #ff6b8b, #ff4081)';
+            particle.style.borderRadius = '50%';
+            particle.style.pointerEvents = 'none';
+            particle.style.zIndex = '1';
+            
+            heartBtn.appendChild(particle);
+            
+            // Анимация
+            particle.animate([
+                { transform: 'scale(1)', opacity: 1 },
+                { transform: 'scale(3)', opacity: 0 }
+            ], {
+                duration: 600,
+                easing: 'ease-out'
+            });
+            
+            setTimeout(() => particle.remove(), 600);
+        }
+        
+        // ========== ПОКУПКА УЛУЧШЕНИЙ ==========
+        function buyUpgrade(id) {
+            const upgrade = upgrades.find(u => u.id === id);
+            
+            if (!upgrade) {
+                console.error('Улучшение не найдено:', id);
+                return;
+            }
+            
+            console.log('Покупка улучшения:', upgrade.name, 'Цена:', upgrade.cost, 'Монеты:', coins);
+            
+            if (coins >= upgrade.cost) {
+                // Списание монет
+                coins -= upgrade.cost;
+                
+                // Добавление эффекта
+                heartsPerSecond += upgrade.heartsPerSecond;
+                upgrade.count++;
+                
+                // Пересчет цены
+                upgrade.cost = Math.floor(upgrade.baseCost * Math.pow(1.5, upgrade.count));
+                
+                // Обновление интерфейса
+                updateDisplay();
+                renderUpgrades();
+                
+                showNotification(`🎉 Купили ${upgrade.name}!`);
+                createPurchaseEffect();
+                
+                // Автосохранение после покупки
+                setTimeout(saveGame, 500);
+                
+                console.log('Улучшение куплено успешно! Новый доход:', heartsPerSecond);
+            } else {
+                console.log('Не хватает монет! Нужно:', upgrade.cost, 'Есть:', coins);
+                showNotification(`💰 Нужно ${upgrade.cost} монет!`);
+            }
+        }
+        
+        // ========== ОБНОВЛЕНИЕ КНОПОК МАГАЗИНА ==========
+        function updateShopButtons() {
+            const buttons = document.querySelectorAll('.buy-btn');
+            buttons.forEach(button => {
+                const costText = button.closest('.upgrade-item')?.querySelector('.upgrade-cost')?.textContent;
+                if (costText) {
+                    const cost = parseInt(costText.replace('🪙', '').trim());
+                    if (!isNaN(cost)) {
+                        if (coins >= cost) {
+                            button.classList.remove('disabled');
+                            button.classList.add('enabled');
+                            button.disabled = false;
+                            button.textContent = 'Купить сейчас 💝';
+                        } else {
+                            button.classList.remove('enabled');
+                            button.classList.add('disabled');
+                            button.disabled = true;
+                            button.textContent = 'Недостаточно монет';
+                        }
+                    }
+                }
+            });
+        }
+        
+        // ========== ПРОВЕРКА ДОСТУПНОСТИ МАГАЗИНА ПРИ СТАРТЕ ==========
+        function checkShopAvailability() {
+            setTimeout(() => {
+                updateShopButtons();
+            }, 100);
+        }
+        
+        // ========== ЭФФЕКТ ПОКУПКИ ==========
+        function createPurchaseEffect() {
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => {
+                    const spark = document.createElement('div');
+                    spark.style.position = 'fixed';
+                    spark.style.left = '50%';
+                    spark.style.top = '50%';
+                    spark.style.width = '5px';
+                    spark.style.height = '5px';
+                    spark.style.background = `hsl(${Math.random() * 360}, 100%, 60%)`;
+                    spark.style.borderRadius = '50%';
+                    spark.style.pointerEvents = 'none';
+                    spark.style.zIndex = '999';
+                    
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = 100 + Math.random() * 100;
+                    
+                    document.body.appendChild(spark);
+                    
+                    spark.animate([
+                        { 
+                            transform: 'translate(-50%, -50%) scale(1)',
+                            opacity: 1 
+                        },
+                        { 
+                            transform: `translate(${Math.cos(angle) * distance - 50}px, ${Math.sin(angle) * distance - 50}px) scale(0)`,
+                            opacity: 0 
+                        }
+                    ], {
+                        duration: 800,
+                        easing: 'ease-out'
+                    });
+                    
+                    setTimeout(() => spark.remove(), 800);
+                }, i * 50);
+            }
+        }
+        
+        // ========== УЛУЧШЕНИЕ СИЛЫ КЛИКА ==========
+        function upgradeClickPower() {
+            const cost = clickPower * 100;
+            
+            if (coins >= cost) {
+                coins -= cost;
+                clickPower += 1;
+                updateDisplay();
+                showNotification(`💪 Сила клика: ${clickPower}`);
+                createPurchaseEffect();
+                
+                // Автосохранение после улучшения
+                setTimeout(saveGame, 500);
+            } else {
+                showNotification(`💰 Нужно ${cost} монет!`);
+            }
+        }
+        
+        // ========== ОБНОВЛЕНИЕ ОТОБРАЖЕНИЯ ==========
+        function updateDisplay() {
+            coinsEl.textContent = coins;
+            heartsEl.textContent = hearts.toFixed(1);
+            heartsPerSecondEl.textContent = heartsPerSecond.toFixed(1);
+            clickPowerEl.textContent = clickPower;
+            
+            updateShopButtons();
+        }
+        
+        // ========== РЕНДЕР МАГАЗИНА ==========
+        function renderUpgrades() {
+            upgradesList.innerHTML = '';
+            
+            upgrades.forEach(upgrade => {
+                const canAfford = coins >= upgrade.cost;
+                
+                const upgradeEl = document.createElement('div');
+                upgradeEl.className = 'upgrade-item';
+                upgradeEl.innerHTML = `
+                    <div class="upgrade-header">
+                        <div class="upgrade-name">
+                            ${upgrade.name}
+                        </div>
+                        <div class="upgrade-cost">${upgrade.cost} 🪙</div>
+                    </div>
+                    <div style="color: #ffccd5; font-size: 0.9rem; margin: 5px 0;">
+                        ${upgrade.description}
+                    </div>
+                    <div class="upgrade-info">
+                        <div class="upgrade-effect">
+                            <span>+${upgrade.heartsPerSecond} 💖/сек</span>
+                        </div>
+                        <div class="upgrade-count">
+                            Куплено: ${upgrade.count}
+                        </div>
+                    </div>
+                    <button class="buy-btn ${canAfford ? 'enabled' : 'disabled'}" 
+                            onclick="buyUpgrade(${upgrade.id})" 
+                            ${canAfford ? '' : 'disabled'}>
+                        ${canAfford ? 'Купить сейчас 💝' : 'Недостаточно монет'}
+                    </button>
+                `;
+                upgradesList.appendChild(upgradeEl);
+            });
+            
+            const clickUpgradeCost = clickPower * 100;
+            const canAffordClick = coins >= clickUpgradeCost;
+            
+            const clickUpgradeEl = document.createElement('div');
+            clickUpgradeEl.className = 'upgrade-item';
+            clickUpgradeEl.innerHTML = `
+                <div class="upgrade-header">
+                    <div class="upgrade-name">💪 Усиление клика</div>
+                    <div class="upgrade-cost">${clickUpgradeCost} 🪙</div>
+                </div>
+                <div style="color: #ffccd5; font-size: 0.9rem; margin: 5px 0;">
+                    Увеличивает силу каждого клика
+                </div>
+                <div class="upgrade-info">
+                    <div>Текущая сила: ${clickPower}</div>
+                    <div>Следующая: ${clickPower + 1}</div>
+                </div>
+                <button class="buy-btn ${canAffordClick ? 'enabled' : 'disabled'}" 
+                        onclick="upgradeClickPower()" 
+                        ${canAffordClick ? '' : 'disabled'}>
+                    ${canAffordClick ? 'Улучшить силу' : 'Недостаточно монет'}
+                </button>
+            `;
+            upgradesList.appendChild(clickUpgradeEl);
+        }
+        
+        // ========== ПОКАЗ УВЕДОМЛЕНИЙ ==========
+        function showNotification(text) {
+            notification.textContent = text;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // ========== ОБРАБОТЧИКИ СОБЫТИЙ ==========
+        window.addEventListener('resize', setupCanvas);
+        window.addEventListener('load', initGame);
+        
+        // Для мобильных устройств
+        document.addEventListener('touchstart', (e) => {
+            // Обработка кликов на поцелуйчики
+            if (e.target.classList.contains('kiss')) {
+                catchKiss(e.target);
+            }
+        });
+        
+        // Оптимизация
+        document.addEventListener('touchstart', () => {}, { passive: true });
+        
+        // Функция для тестирования (можно удалить в финальной версии)
+        window.addTestCoins = function(amount) {
+            addCoins(amount);
+            updateDisplay();
+            console.log(`Тест: добавлено ${amount} монет. Всего: ${coins}`);
+        };
+    </script>
+</body>
+</html>
