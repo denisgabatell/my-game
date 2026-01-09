@@ -447,6 +447,104 @@
             }
         }
         
+        /* Кнопки сохранения */
+        .save-button {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--primary), var(--purple));
+            border: 2px solid rgba(255,255,255,0.2);
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 999;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .save-button:hover {
+            transform: scale(1.1);
+        }
+        
+        .save-button:active {
+            transform: scale(0.9);
+        }
+        
+        .export-button {
+            position: fixed;
+            bottom: 20px;
+            left: 80px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(72, 202, 228, 0.8);
+            border: 2px solid rgba(255,255,255,0.2);
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 999;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .import-button {
+            position: fixed;
+            bottom: 20px;
+            left: 140px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(199, 125, 255, 0.8);
+            border: 2px solid rgba(255,255,255,0.2);
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 999;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Иконка сохранения */
+        .save-icon {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 24px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s;
+            z-index: 10000;
+            pointer-events: none;
+        }
+        
+        /* Панель сохранения */
+        .save-panel {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(26, 27, 46, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 10px;
+            z-index: 1000;
+            font-size: 12px;
+            color: #ffccd5;
+            backdrop-filter: blur(10px);
+            display: none;
+        }
+        
         /* Стили скроллбара */
         .shop-section::-webkit-scrollbar {
             width: 8px;
@@ -485,6 +583,24 @@
             .kiss {
                 font-size: 35px;
             }
+            
+            .save-button, .export-button, .import-button {
+                width: 45px;
+                height: 45px;
+                font-size: 20px;
+            }
+            
+            .save-button {
+                left: 10px;
+            }
+            
+            .export-button {
+                left: 65px;
+            }
+            
+            .import-button {
+                left: 120px;
+            }
         }
     </style>
 </head>
@@ -494,6 +610,15 @@
     
     <!-- Уведомление -->
     <div class="notification" id="notification"></div>
+    
+    <!-- Панель сохранения -->
+    <div class="save-panel" id="savePanel"></div>
+    
+    <!-- Иконка сохранения -->
+    <div class="save-icon" id="saveIcon">💾</div>
+    
+    <!-- Скрытый input для импорта -->
+    <input type="file" id="fileInput" accept=".json" style="display: none;">
     
     <div class="container">
         <!-- Анимированная надпись -->
@@ -548,6 +673,11 @@
         </div>
     </div>
 
+    <!-- Кнопки управления сохранениями -->
+    <button class="save-button" id="saveBtn" title="Сохранить игру">💾</button>
+    <button class="export-button" id="exportBtn" title="Экспорт сохранения">📤</button>
+    <button class="import-button" id="importBtn" title="Импорт сохранения">📥</button>
+
     <script>
         // ========== ИГРОВЫЕ ПЕРЕМЕННЫЕ ==========
         let coins = 0;
@@ -570,6 +700,14 @@
         const notification = document.getElementById('notification');
         const bgCanvas = document.getElementById('bgCanvas');
         const ctx = bgCanvas.getContext('2d');
+        
+        // Элементы для сохранения
+        const saveBtn = document.getElementById('saveBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const importBtn = document.getElementById('importBtn');
+        const fileInput = document.getElementById('fileInput');
+        const saveIcon = document.getElementById('saveIcon');
+        const savePanel = document.getElementById('savePanel');
         
         // ========== МАГАЗИН УЛУЧШЕНИЙ ==========
         const upgrades = [
@@ -629,6 +767,221 @@
             }
         ];
         
+        // ========== СИСТЕМА СОХРАНЕНИЯ ==========
+        const SAVE_KEY = 'loveClicker_save_v2';
+        let autoSaveInterval;
+        
+        // Функция сохранения игры
+        function saveGame() {
+            try {
+                const saveData = {
+                    // Основные данные
+                    coins: coins,
+                    hearts: hearts,
+                    clickPower: clickPower,
+                    heartsPerSecond: heartsPerSecond,
+                    totalCoinsEarned: totalCoinsEarned,
+                    lastBonusCoins: lastBonusCoins,
+                    
+                    // Данные улучшений
+                    upgrades: upgrades.map(u => ({
+                        id: u.id,
+                        count: u.count,
+                        cost: u.cost
+                    })),
+                    
+                    // Метаданные
+                    saveTime: Date.now(),
+                    version: '2.0'
+                };
+                
+                // Сохраняем в localStorage
+                localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
+                
+                console.log('💾 Игра сохранена');
+                
+                // Показываем иконку сохранения
+                showSaveIcon();
+                
+                return true;
+                
+            } catch (error) {
+                console.error('Ошибка сохранения:', error);
+                return false;
+            }
+        }
+        
+        // Функция загрузки игры
+        function loadGame() {
+            try {
+                // Пробуем загрузить из localStorage
+                const savedData = localStorage.getItem(SAVE_KEY);
+                
+                if (!savedData) {
+                    console.log('💾 Сохранение не найдено, начинаем новую игру');
+                    return false;
+                }
+                
+                const save = JSON.parse(savedData);
+                
+                // Проверяем версию
+                if (save.version !== '2.0') {
+                    console.log('💾 Устаревшая версия сохранения, начинаем новую игру');
+                    return false;
+                }
+                
+                // Проверяем, не устарело ли сохранение (больше 30 дней)
+                const thirtyDays = 30 * 24 * 60 * 60 * 1000;
+                if (Date.now() - save.saveTime > thirtyDays) {
+                    console.log('💾 Сохранение устарело (30+ дней)');
+                    return false;
+                }
+                
+                // Загружаем основные данные
+                coins = save.coins || 0;
+                hearts = save.hearts || 0;
+                clickPower = save.clickPower || 1;
+                heartsPerSecond = save.heartsPerSecond || 0;
+                totalCoinsEarned = save.totalCoinsEarned || 0;
+                lastBonusCoins = save.lastBonusCoins || 0;
+                
+                // Загружаем улучшения
+                if (save.upgrades && Array.isArray(save.upgrades)) {
+                    save.upgrades.forEach(savedUpgrade => {
+                        const upgrade = upgrades.find(u => u.id === savedUpgrade.id);
+                        if (upgrade) {
+                            upgrade.count = savedUpgrade.count || 0;
+                            upgrade.cost = savedUpgrade.cost || upgrade.baseCost * Math.pow(1.5, upgrade.count);
+                        }
+                    });
+                }
+                
+                console.log('💾 Игра загружена успешно');
+                showNotification('💾 Прогресс загружен!');
+                return true;
+                
+            } catch (error) {
+                console.error('💾 Ошибка загрузки:', error);
+                return false;
+            }
+        }
+        
+        // Автосохранение
+        function startAutoSave() {
+            if (autoSaveInterval) clearInterval(autoSaveInterval);
+            autoSaveInterval = setInterval(saveGame, 30000); // 30 секунд
+        }
+        
+        // Иконка сохранения
+        function showSaveIcon() {
+            saveIcon.style.opacity = '1';
+            saveIcon.style.transform = 'translateY(0)';
+            
+            setTimeout(() => {
+                saveIcon.style.opacity = '0';
+                saveIcon.style.transform = 'translateY(10px)';
+            }, 2000);
+        }
+        
+        // Экспорт сохранения
+        function exportSave() {
+            const saveData = localStorage.getItem(SAVE_KEY);
+            if (saveData) {
+                const blob = new Blob([saveData], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `love-clicker-save-${new Date().toISOString().slice(0,10)}.json`;
+                a.click();
+                showNotification('📤 Сохранение экспортировано!');
+            } else {
+                showNotification('💾 Нет данных для экспорта');
+            }
+        }
+        
+        // Импорт сохранения
+        function importSave(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    // Простая проверка данных
+                    if (data && data.version && data.coins !== undefined) {
+                        if (confirm('Заменить текущее сохранение? Текущий прогресс будет потерян.')) {
+                            localStorage.setItem(SAVE_KEY, e.target.result);
+                            showNotification('📥 Сохранение импортировано! Перезагружаем...');
+                            setTimeout(() => location.reload(), 1500);
+                        }
+                    } else {
+                        showNotification('❌ Неверный формат файла');
+                    }
+                } catch (error) {
+                    showNotification('❌ Ошибка загрузки файла');
+                }
+            };
+            reader.readAsText(file);
+        }
+        
+        // Обновление панели сохранения
+        function updateSavePanel() {
+            const saveData = localStorage.getItem(SAVE_KEY);
+            if (saveData) {
+                const data = JSON.parse(saveData);
+                const saveTime = new Date(data.saveTime).toLocaleTimeString();
+                savePanel.innerHTML = `
+                    <div>💾 Сохранено: ${saveTime}</div>
+                    <div>🪙 Монет: ${data.coins || 0}</div>
+                    <div>💖/сек: ${data.heartsPerSecond || 0}</div>
+                `;
+            }
+        }
+        
+        // Настройка кнопок сохранения
+        function setupSaveButtons() {
+            // Сохранение
+            saveBtn.addEventListener('click', function() {
+                saveGame();
+                showNotification('💾 Игра сохранена!');
+                this.style.transform = 'scale(0.9)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 150);
+            });
+            
+            // Экспорт
+            exportBtn.addEventListener('click', exportSave);
+            
+            // Импорт
+            importBtn.addEventListener('click', () => fileInput.click());
+            
+            // Обработка выбора файла
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    importSave(file);
+                }
+                this.value = ''; // Сброс input
+            });
+            
+            // Долгое нажатие на сердечко показывает панель
+            heartBtn.addEventListener('touchstart', function(e) {
+                this.longPressTimer = setTimeout(() => {
+                    updateSavePanel();
+                    savePanel.style.display = 'block';
+                    setTimeout(() => {
+                        savePanel.style.display = 'none';
+                    }, 3000);
+                }, 1500);
+            });
+            
+            heartBtn.addEventListener('touchend', function() {
+                if (this.longPressTimer) {
+                    clearTimeout(this.longPressTimer);
+                }
+            });
+        }
+        
         // ========== НАСТРОЙКА CANVAS ==========
         function setupCanvas() {
             bgCanvas.width = window.innerWidth;
@@ -669,11 +1022,29 @@
         
         // ========== ИНИЦИАЛИЗАЦИЯ ИГРЫ ==========
         function initGame() {
+            // Загружаем сохранение
+            loadGame();
+            
             setupCanvas();
             animateBackground();
             updateDisplay();
             renderUpgrades();
             gameLoop();
+            
+            // Настраиваем сохранения
+            setupSaveButtons();
+            startAutoSave();
+            
+            // Сохраняем при закрытии
+            window.addEventListener('beforeunload', saveGame);
+            window.addEventListener('pagehide', saveGame);
+            
+            // Сохраняем при изменении видимости
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) {
+                    saveGame();
+                }
+            });
             
             showNotification("💖 Начни собирать любовь!");
             
@@ -933,6 +1304,9 @@
                 showNotification(`🎉 Купили ${upgrade.name}!`);
                 createPurchaseEffect();
                 
+                // Автосохранение после покупки
+                setTimeout(saveGame, 500);
+                
                 console.log('Улучшение куплено успешно! Новый доход:', heartsPerSecond);
             } else {
                 console.log('Не хватает монет! Нужно:', upgrade.cost, 'Есть:', coins);
@@ -1020,6 +1394,9 @@
                 updateDisplay();
                 showNotification(`💪 Сила клика: ${clickPower}`);
                 createPurchaseEffect();
+                
+                // Автосохранение после улучшения
+                setTimeout(saveGame, 500);
             } else {
                 showNotification(`💰 Нужно ${cost} монет!`);
             }
